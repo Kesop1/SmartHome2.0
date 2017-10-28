@@ -1,0 +1,3 @@
+[submodule "SmartHome"]
+	path = SmartHome
+	url = https://github.com/Kesop1/SmartHome.git
