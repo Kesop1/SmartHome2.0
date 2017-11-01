@@ -1,17 +1,12 @@
 package com.smartdom;
 
-import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 
 public class Items implements SheetReader, FileCreator {
 
@@ -21,7 +16,7 @@ public class Items implements SheetReader, FileCreator {
         return ITEMS_FILE;
     }
 
-    private static final String ITEMS_FILE = "items.txt";
+    private static final String ITEMS_FILE = "items.items";
 
     private static final String ITEM_DESC = "item desc";
 
@@ -51,6 +46,7 @@ public class Items implements SheetReader, FileCreator {
 
     @Override
     public void readRow(HSSFRow row) {
+        if(row==null) return;
         Item item = new Item();
         item.setDescription(row.getCell(columns.get(ITEM_DESC)) == null ? "" : row.getCell(columns.get(ITEM_DESC)).getStringCellValue());
         item.setType(row.getCell(columns.get(ITEM_TYPE)) == null ? "" : row.getCell(columns.get(ITEM_TYPE)).getStringCellValue());

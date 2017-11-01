@@ -11,6 +11,7 @@ import java.io.IOException;
 public class Main {
     public static final String HOME = "..\\..\\";
     public static final String CONFIG_FILE = HOME + "doc\\OpenHAB_configuration.xls";
+    public static final String ITEMS_FOLDER = HOME + "func\\OpenHAB\\configurations\\items\\";
 
     public static void main(String[] args) {
         FileInputStream configFileStream;
@@ -20,7 +21,10 @@ public class Main {
 
             Items items = new Items();
             readItems(workbook, items);
-            items.createFile(HOME + items.getItemsFile());
+            items.createFile(ITEMS_FOLDER + items.getItemsFile());
+            Sitemap sitemap = new Sitemap();
+            readSitemap(workbook, sitemap);
+
             System.out.println();
 
         } catch (FileNotFoundException e) {
@@ -37,6 +41,14 @@ public class Main {
         if(workbook==null) return false;
         HSSFSheet itemsWorksheet = workbook.getSheet(items.getSheetName());
         items.readSheet(itemsWorksheet);
+        return true;
+    }
+
+    private static boolean readSitemap(HSSFWorkbook workbook, Sitemap sitemap){
+        if(workbook==null) return false;
+        HSSFSheet sitemapWorksheet = workbook.getSheet(sitemap.getSheetName());
+        sitemap.readSheet(sitemapWorksheet);
+        sitemap.setSubframes();
         return true;
     }
 }
