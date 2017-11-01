@@ -20,6 +20,7 @@ public class Main {
 
             Items items = new Items();
             readItems(workbook, items);
+            items.createFile(HOME + items.getItemsFile());
             System.out.println();
 
         } catch (FileNotFoundException e) {

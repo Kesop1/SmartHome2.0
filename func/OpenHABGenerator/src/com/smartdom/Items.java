@@ -17,6 +17,12 @@ public class Items implements SheetReader, FileCreator {
 
     private static final String SHEET_NAME = "Items";
 
+    public String getItemsFile() {
+        return ITEMS_FILE;
+    }
+
+    private static final String ITEMS_FILE = "items.txt";
+
     private static final String ITEM_DESC = "item desc";
 
     private static final String ITEM_TYPE = "item type";
@@ -73,8 +79,9 @@ public class Items implements SheetReader, FileCreator {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
-        return false;
+        return true;
 
     }
 }
