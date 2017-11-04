@@ -9,7 +9,7 @@ import java.util.Iterator;
 
 public interface SheetReader {
 
-    HashMap<String, Integer> columns = new HashMap<>();
+    String getSheetName();
 
     default boolean readSheet(HSSFSheet sheet) {
         if(sheet==null) return false;
@@ -24,13 +24,15 @@ public interface SheetReader {
 
     void readRow(HSSFRow row);
 
+    HashMap<String, Integer> getColumns();
+
     default void columnsPosition(HSSFRow row){
         Iterator cells = row.cellIterator();
         while (cells.hasNext()) {
             HSSFCell cell = (HSSFCell) cells.next();
             String value = cell.getStringCellValue();
             int index = cell.getColumnIndex();
-            columns.put(value, index);
+            getColumns().put(value, index);
         }
     }
 }

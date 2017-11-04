@@ -1,8 +1,9 @@
 package com.smartdom;
 
 import java.util.ArrayList;
+import static com.smartdom.Constants.*;
 
-public class Item {
+public class Item implements LinePrinter{
     private String type;
     private String name;
     private String label;
@@ -80,18 +81,18 @@ public class Item {
                 '}';
     }
 
-    public String printItem(){
+    public String printLine(){
         StringBuilder sb = new StringBuilder(250);
-        sb.append("//").append(this.description).append(System.getProperty("line.separator"));
-        sb.append(String.format("%-20s", this.type)).append(String.format("%-20s", this.name)).append(String.format("%-50s", "\"" + this.label + "\""))
-                .append(String.format("%-20s", "<" + this.icon + ">"));
+        sb.append("//").append(this.description).append(LINE_SEPARATOR);
+        sb.append(formatElement(20, this.type)).append(formatElement(20, this.name)).append(formatElement(50, "\"" + this.label + "\""))
+                .append(formatElement(20, "<" + this.icon + ">"));
         StringBuilder group = new StringBuilder();
         group.append("(");
         for(String g: getGroup()){
             group.append(g).append(", ");
         }
         group.append(")");
-        sb.append(String.format("%-20s", group)).append(this.binding).append(System.getProperty("line.separator")).append(System.getProperty("line.separator"));
+        sb.append(formatElement(20, group.toString())).append(this.binding).append(LINE_SEPARATOR).append(LINE_SEPARATOR);
         return sb.toString();
     }
 }

@@ -7,41 +7,29 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import static com.smartdom.Constants.*;
 
 public class Items implements SheetReader, FileCreator {
 
-    private static final String SHEET_NAME = "Items";
-
     public String getItemsFile() {
-        return ITEMS_FILE;
+        return ITEMS_FILE_NAME;
     }
-
-    private static final String ITEMS_FILE = "items.items";
-
-    private static final String ITEM_DESC = "item desc";
-
-    private static final String ITEM_TYPE = "item type";
-
-    private static final String ITEM_NAME = "item name";
-
-    private static final String LABEL_TEXT = "labeltext";
-
-    private static final String ICON_NAME = "iconname";
-
-    private static final String GROUP = "group1, group2, ...";
-
-    private static final String BINDING = "bindingconfig";
 
 //TODO dodac config file dla kolumn
 
     private ArrayList<Item> itemsList = new ArrayList<>();
 
+    private HashMap<String, Integer> columns = new HashMap<>();
+
     public ArrayList<Item> getItemsList() {
         return itemsList;
     }
 
+    @Override
     public String getSheetName() {
-        return SHEET_NAME;
+        return Constants.SHEET_NAME_ITEMS;
     }
 
     @Override
@@ -68,10 +56,15 @@ public class Items implements SheetReader, FileCreator {
     }
 
     @Override
+    public HashMap<String, Integer> getColumns() {
+        return columns;
+    }
+
+    @Override
     public boolean createFile(String path) {
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(path))) {
             for(Item i: getItemsList()){
-                writer.write(i.printItem());
+                writer.write(i.printLine());
             }
         } catch (IOException e) {
             e.printStackTrace();

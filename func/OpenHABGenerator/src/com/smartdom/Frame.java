@@ -1,8 +1,9 @@
 package com.smartdom;
 
 import java.util.ArrayList;
+import static com.smartdom.Constants.*;
 
-public class Frame {
+public class Frame implements LinePrinter {
     private String frameLevel;
     private String frameLabel;
     private String itemType;
@@ -119,5 +120,28 @@ public class Frame {
                 ", step=" + step +
                 ", subFrames=" + subFrames +
                 '}';
+    }
+
+    public String printLine(){
+        StringBuilder sb = new StringBuilder(250);
+
+        sb.append("Frame ").append(this.getFrameLabel()).append(OPEN_BRACE).append(LINE_SEPARATOR);
+        if(!this.getSubFrames().isEmpty()){
+            for (Frame f: this.getSubFrames()) {
+                sb.append(f.printLine());
+            }
+        }
+
+//        sb.append("//").append(this.description).append(System.getProperty("line.separator"));
+//        sb.append(String.format("%-20s", this.type)).append(String.format("%-20s", this.name)).append(String.format("%-50s", "\"" + this.label + "\""))
+//                .append(String.format("%-20s", "<" + this.icon + ">"));
+//        StringBuilder group = new StringBuilder();
+//        group.append("(");
+//        for(String g: getGroup()){
+//            group.append(g).append(", ");
+//        }
+//        group.append(")");
+//        sb.append(String.format("%-20s", group)).append(this.binding).append(System.getProperty("line.separator")).append(System.getProperty("line.separator"));
+        return sb.toString();
     }
 }

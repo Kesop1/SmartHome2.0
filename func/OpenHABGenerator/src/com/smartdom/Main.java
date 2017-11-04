@@ -8,10 +8,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import static com.smartdom.Constants.*;
+
 public class Main {
-    public static final String HOME = "..\\..\\";
-    public static final String CONFIG_FILE = HOME + "doc\\OpenHAB_configuration.xls";
-    public static final String ITEMS_FOLDER = HOME + "func\\OpenHAB\\configurations\\items\\";
 
     public static void main(String[] args) {
         FileInputStream configFileStream;
@@ -20,10 +19,11 @@ public class Main {
             HSSFWorkbook workbook = new HSSFWorkbook(configFileStream);
 
             Items items = new Items();
-            readItems(workbook, items);
+            readSheet(workbook, items);
             items.createFile(ITEMS_FOLDER + items.getItemsFile());
             Sitemap sitemap = new Sitemap();
-            readSitemap(workbook, sitemap);
+            readSheet(workbook, sitemap);
+            sitemap.setSubframes();
 
             System.out.println();
 
@@ -37,18 +37,11 @@ public class Main {
 
     }
 
-    private static boolean readItems(HSSFWorkbook workbook, Items items){
+    private static boolean readSheet(HSSFWorkbook workbook, SheetReader reader){
         if(workbook==null) return false;
-        HSSFSheet itemsWorksheet = workbook.getSheet(items.getSheetName());
-        items.readSheet(itemsWorksheet);
+        HSSFSheet worksheet = workbook.getSheet(reader.getSheetName());
+        reader.readSheet(worksheet);
         return true;
     }
 
-    private static boolean readSitemap(HSSFWorkbook workbook, Sitemap sitemap){
-        if(workbook==null) return false;
-        HSSFSheet sitemapWorksheet = workbook.getSheet(sitemap.getSheetName());
-        sitemap.readSheet(sitemapWorksheet);
-        sitemap.setSubframes();
-        return true;
-    }
 }
