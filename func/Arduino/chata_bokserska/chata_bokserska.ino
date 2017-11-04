@@ -104,7 +104,7 @@ const int but_l2 = 46;
 const int but_pc = 7; 
 
 #define DHT11_PIN A0 //czujnik temp i wilgoci na balkonie
-const int IR_RECV_PIN = 3;    //czujnik IR pilota
+const int IR_RECV_PIN = A2;    //czujnik IR pilota
 IRrecv irrecv(IR_RECV_PIN);
 decode_results results;
 IRsend irsend;       //nadajniki IR pilotów, pin 9
