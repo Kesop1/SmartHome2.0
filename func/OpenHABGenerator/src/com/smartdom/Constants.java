@@ -1,41 +1,45 @@
 package com.smartdom;
 
-public interface Constants {
+public class Constants {
+
+    private Constants(){
+        //do not instantiate
+    }
 
     //file locations
-    String HOME = "..\\..\\";
-    String CONFIG_FILE = HOME + "doc\\OpenHAB_configuration.xls";
-    String ITEMS_FOLDER = HOME + "func\\OpenHAB\\configurations\\items\\";
-    String SITEMAP_FOLDER = HOME + "func\\OpenHAB\\configurations\\sitemap\\";
-    String TITLE = "Chata";
-    String ITEMS_FILE_NAME = TITLE + ".items";
-    String SITEMAP_FILE_NAME = TITLE + ".sitemap";
+    public static final String HOME = "..\\..\\";
+    public static final String CONFIG_FILE = HOME + "doc\\OpenHAB_configuration.xls";
+    public static final String ITEMS_FOLDER = HOME + "func\\OpenHAB\\configurations\\items\\";
+    public static final String SITEMAP_FOLDER = HOME + "func\\OpenHAB\\configurations\\sitemap\\";
+    public static final String TITLE = "Chata";
+    public static final String ITEMS_FILE_NAME = TITLE + ".items";
+    public static final String SITEMAP_FILE_NAME = TITLE + ".sitemap";
 
     //sitemap
-    String SHEET_NAME_SITEMAP = "Sitemap";
-    String SITEMAP_TITLE = "sitemap demo label=\"" + TITLE + "\"";
-    String FRAME_LEVEL = "Frame";
-    String FRAME_LABEL = "Frame label";
-    String ITEM_LABEL = "Item label";
-    String MAPPINGS = "Mappings";
-    String ICON = "Icon";
-    String MIN_VALUE = "MinValue";
-    String MAX_VALUE = "MaxValue";
-    String STEP = "Step";
+    public static final String SHEET_NAME_SITEMAP = "Sitemap";
+    public static final String SITEMAP_TITLE = "sitemap demo label=\"" + TITLE + "\"";
+    public static final String FRAME_LEVEL = "Frame";
+    public static final String FRAME_LABEL = "Frame label";
+    public static final String ITEM_LABEL = "Item label";
+    public static final String MAPPINGS = "Mappings";
+    public static final String ICON = "Icon";
+    public static final String MIN_VALUE = "MinValue";
+    public static final String MAX_VALUE = "MaxValue";
+    public static final String STEP = "Step";
 
     //items
-    String SHEET_NAME_ITEMS = "Items";
-    String ITEM_DESC = "Item desc";
-    String ITEM_TYPE = "Item type";
-    String ITEM_NAME = "Item name";
-    String LABEL_TEXT = "Labeltext";
-    String ICON_NAME = "Iconname";
-    String GROUP = "Group1, Group2, ...";
-    String BINDING = "Bindingconfig";
+    public static final String SHEET_NAME_ITEMS = "Items";
+    public static final String ITEM_DESC = "Item desc";
+    public static final String ITEM_TYPE = "Item type";
+    public static final String ITEM_NAME = "Item name";
+    public static final String LABEL_TEXT = "Labeltext";
+    public static final String ICON_NAME = "Iconname";
+    public static final String GROUP = "Group1, Group2, ...";
+    public static final String BINDING = "Bindingconfig";
 
     //system
-    String LINE_SEPARATOR = System.getProperty("line.separator");
-    String OPEN_BRACE = "{";
-    String CLOSE_BRACE = "}";
+    public static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    public static final String OPEN_BRACE = "{";
+    public static final String CLOSE_BRACE = "}";
 
 }
