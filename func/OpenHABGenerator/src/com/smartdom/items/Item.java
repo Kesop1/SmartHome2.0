@@ -1,9 +1,11 @@
-package com.smartdom;
+package com.smartdom.items;
+
+import com.smartdom.Element;
 
 import java.util.ArrayList;
 import static com.smartdom.Constants.*;
 
-public class Item implements LinePrinter{
+public class Item implements Element {
     private String type;
     private String name;
     private String label;
@@ -81,7 +83,7 @@ public class Item implements LinePrinter{
                 '}';
     }
 
-    public String printLine(){
+    public String printElement(){
         StringBuilder sb = new StringBuilder(250);
         sb.append("//").append(this.description).append(LINE_SEPARATOR);
         sb.append(formatElement(20, this.type)).append(formatElement(20, this.name)).append(formatElement(50, "\"" + this.label + "\""))

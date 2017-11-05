@@ -1,5 +1,9 @@
-package com.smartdom;
+package com.smartdom.items;
 
+import com.smartdom.Constants;
+import com.smartdom.FileCreator;
+import com.smartdom.SheetReader;
+import com.smartdom.items.Item;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 
 import java.io.BufferedWriter;
@@ -64,7 +68,7 @@ public class Items implements SheetReader, FileCreator {
     public boolean createFile(String path) {
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(path))) {
             for(Item i: getItemsList()){
-                writer.write(i.printLine());
+                writer.write(i.printElement());
             }
         } catch (IOException e) {
             e.printStackTrace();
