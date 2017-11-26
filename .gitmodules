@@ -1,3 +1,6 @@
 [submodule "func/OpenHAB"]
 	path = func/OpenHAB
 	url = https://github.com/Kesop1/OpenHAB.git
+[submodule "func/OpenHAB2"]
+	path = func/OpenHAB2
+	url = https://github.com/Kesop1/OpenHAB2.git
