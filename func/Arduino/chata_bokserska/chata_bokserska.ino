@@ -44,27 +44,36 @@ int codeType; // The type of code (NEC, SONY, UNKNOWN, etc.)
 unsigned int codeValue; // The value of a known code
 boolean codeReceived = false; // A boolean to keep track of if a code was received
 
+const String TOPIC_PILOT = "pilot";
+const String SUBTOPIC_AMP = "amp";
+const String SUBTOPIC_TV = "tv";
+const String TOPIC_LIS = "lis";
+const String SUBTOPIC_LCD = "lcd";
+const String SUBTOPIC_SPEAK = "speak";
+const String SUBTOPIC_SUB = "sub";
+const String SUBTOPIC_ETC = "etc";
+
 const long  AMP_VOLUP =   0x5EA158A7;
 const long  AMP_VOLDN =   0x5EA1D827;
-const long  AMP_ON =      0x7E817E81;
-const long  AMP_OFF =     0x7E81FE01;
-const long  AMP_NIGHT =   0x5EA1A956;
-const long  AMP_AUDIOSRC =0x5EA1C33C;
-const long  AMP_SCENE1 =  0x5EA100FE;
-const long  AMP_SCENE2 =  0x5EA1C03E;
-const long  AMP_SCENE3 =  0x5EA1609E;
+//const long  AMP_ON =      0x7E817E81;
+//const long  AMP_OFF =     0x7E81FE01;
+//const long  AMP_NIGHT =   0x5EA1A956;
+//const long  AMP_AUDIOSRC =0x5EA1C33C;
+//const long  AMP_SCENE1 =  0x5EA100FE;
+//const long  AMP_SCENE2 =  0x5EA1C03E;
+//const long  AMP_SCENE3 =  0x5EA1609E;
 const long  AMP_SCENE4 =  0x5EA1906E;
 
 unsigned int TV_ON[] = {4500,4450, 550,1700, 550,1650, 550,1700, 600,550, 550,600, 550,550, 600,550, 550,600, 550,1700, 550,1700, 550,1650, 550,600, 550,600, 550,600, 550,600, 550,550, 600,550, 600,1650, 550,600, 550,600, 550,600, 550,550, 600,550, 550,600, 550,1700, 550,600, 550,1650, 550,1700, 550,1700, 550,1650, 600,1650, 550,1700, 550};
 
-const long  RADIO_CHNL1 = 0x5EA1A758;
+/*const long  RADIO_CHNL1 = 0x5EA1A758;
 const long  RADIO_CHNL2 = 0x5EA16798;
 const long  RADIO_CHNL3 = 0x5EA1E718;
 const long  RADIO_CHNL4 = 0x5EA117E8;
 const long  RADIO_CHNL5 = 0x5EA19768;
 const long  RADIO_CHNL6 = 0x5EA157A8;
 const long  RADIO_CHNL7 = 0x5EA1D728;
-const long  RADIO_CHNL8 = 0x5EA137C8;
+const long  RADIO_CHNL8 = 0x5EA137C8;*/
 
 const long  CD1 =         0x8B73AC5;
 const long  CD2 =         0x8B77887;
@@ -85,22 +94,6 @@ const int lis_sub = 24;    //listwa 4
 const int lis_etc = 26;    //listwa 5
 const int led_red = 7;
 const int led_grn = 6;
-
-/*
-//++++++++++++ PAD +++++++++++++
-const int but_up = 42;
-const int but_dn = 44;
-const int but_le = 43;
-const int but_ri = 45;
-const int but_1 = 50;    //nie uzywac
-const int but_2 = 51;    //nie uzywac
-const int but_3 = 52;    //nie uzywac
-const int but_4 = 53;
-const int but_r1 = 49;
-const int but_r2 = 48;
-const int but_l1 = 47;
-const int but_l2 = 46;
-*/
 
 const int but_pc = 7; 
 
@@ -127,12 +120,28 @@ PubSubClient client(server, 1883, callback, ethClient);
 void callback(char* topic, byte* payload, unsigned int length) {  //wiadomosc z brokera
   led(led_red);
   String top = topic;
-  if (top.substring(0, 3) == "lis"){
-    if (top.length()<10)
-      useLis(topic, payload, length);
+  String msg = String((char*)payload);
+  msg = msg.substring(0, length);
+  Serial.println("Received message from broker:\t=" + msg + "\tin topic: " + top);
+  
+  String mainTopic = top.substring(0, top.indexOf("/"));
+  String restTopic = top.substring(top.indexOf("/")+1);
+  String subTopic = "";
+  if(restTopic.indexOf("/") >= 0)
+      subTopic = restTopic.substring(0, restTopic.indexOf("/"));
+  else
+      subTopic = restTopic;
+  
+  if (mainTopic == TOPIC_LIS && !top.endsWith("status")){
+      useLis(subTopic, msg);
+      byte* p = (byte*)malloc(length);
+      // Copy the payload to the new buffer
+      memcpy(p, payload, length);
+      client.publish((mainTopic + "/" + subTopic + "/status").c_str(), p, length);
+      free(p);
   }
-  else if (top.substring(0, 3) == "pil")
-    usePilot(topic, payload, length);
+  else if (mainTopic == TOPIC_PILOT)
+    usePilot(subTopic, payload);
   else if (top == "czuj") {
     String cmd = "";
     for (int i=0;i<length;i++) {
@@ -161,20 +170,6 @@ void setup() {
   pinMode(but_pc, OUTPUT);
   pinMode(led_red, OUTPUT);
   pinMode(led_grn, OUTPUT);
-  /*
-  pinMode(but_up, OUTPUT);
-  pinMode(but_dn, OUTPUT);
-  pinMode(but_le, OUTPUT);
-  pinMode(but_ri, OUTPUT);
-  pinMode(but_1, OUTPUT);
-  pinMode(but_2, OUTPUT);
-  pinMode(but_3, OUTPUT);
-  pinMode(but_4, OUTPUT);
-  pinMode(but_r1, OUTPUT);
-  pinMode(but_r2, OUTPUT);
-  pinMode(but_l1, OUTPUT);
-  pinMode(but_l2, OUTPUT);
-  */
   
   digitalWrite(lis_lcd, HIGH);
   digitalWrite(lis_speak, HIGH);
@@ -200,6 +195,7 @@ void setup() {
     client.subscribe("czuj/#");  //sluchaj wszystkiego pod topikiem czujnika ruchu
     client.subscribe("czuj");  //sluchaj wszystkiego pod topikiem czujnika ruchu
     client.subscribe("pilot/amp");  //sluchaj wszystkiego pod topikiem pilota
+    client.subscribe("pilot/tv");  //sluchaj wszystkiego pod topikiem pilota
     client.subscribe("volume");  //sluchaj wszystkiego pod topikiem pilota volume
     client.subscribe("pcCMD");  //sluchaj wszystkiego pod topikiem buttons
     client.publish("pcCMD", "PCPC");
@@ -221,10 +217,27 @@ void loop() {
   pilot();
 }
 
+//////////////////    listwy    //////////////////////
+
+void useLis(String subTopic, String cmd) {
+  int elemNo = 0;
+       if (subTopic== SUBTOPIC_LCD) elemNo = lis_lcd;
+  else if (subTopic== SUBTOPIC_SPEAK) elemNo = lis_speak;
+  else if (subTopic== SUBTOPIC_AMP) elemNo = lis_amp;
+  else if (subTopic== SUBTOPIC_SUB) elemNo = lis_sub;
+  else if (subTopic== SUBTOPIC_ETC) elemNo = lis_etc;
+  
+  if (cmd == "ON" ) {
+    digitalWrite(elemNo, HIGH);
+  }
+  else {
+    digitalWrite(elemNo, LOW);
+  }
+}
 
 
 //////////////////    listwy    //////////////////////
-void useLis(char* topic, byte* payload, unsigned int length) {
+void useLis1(char* topic, byte* payload, unsigned int length) {
   int elemNo = 0;
   String el = topic;
   String elem = el.substring(4);
@@ -253,42 +266,33 @@ void useLis(char* topic, byte* payload, unsigned int length) {
 }
 
 //////////////////    pilot    //////////////////////
-void usePilot(char* topic, byte* payload, unsigned int length) {
-  //topic: pilot/amp
-  String el = topic;
-  String cmd = "";
-  for (int i=0;i<length;i++) {
-    cmd = cmd +((char)payload[i]);
-  }
-//         if(cmd == "VOLUP")   irsend.sendNEC(AMP_VOLUP, 32);
-//    else if(cmd == "VOLDN")   irsend.sendNEC(AMP_VOLDN, 32);
-         if(cmd == "ON")      irsend.sendNEC(AMP_ON, 32);
-    else if(cmd == "OFF")     irsend.sendNEC(AMP_OFF, 32);
-    else if(cmd == "NIGHT")   irsend.sendNEC(AMP_NIGHT, 32);
-    else if(cmd == "AUDIOSRC")irsend.sendNEC(AMP_AUDIOSRC, 32);
-    else if(cmd == "SCENE1")  irsend.sendNEC(AMP_SCENE1, 32);
-    else if(cmd == "SCENE2")  irsend.sendNEC(AMP_SCENE2, 32);
-    else if(cmd == "SCENE3")  irsend.sendNEC(AMP_SCENE3, 32);
-    else if(cmd == "SCENE4")  irsend.sendNEC(AMP_SCENE4, 32);
-    else if(cmd == "TV"){
-      irsend.sendRaw(TV_ON, 67, 38);
-      delay(100);
-    }
-    else if(cmd == "RADIO1")  irsend.sendNEC(RADIO_CHNL1, 32);
-    else if(cmd == "RADIO2")  irsend.sendNEC(RADIO_CHNL2, 32);
-    else if(cmd == "RADIO3")  irsend.sendNEC(RADIO_CHNL3, 32);
-    else if(cmd == "RADIO4")  irsend.sendNEC(RADIO_CHNL4, 32);
-    else if(cmd == "RADIO5")  irsend.sendNEC(RADIO_CHNL5, 32);
-    else if(cmd == "RADIO6")  irsend.sendNEC(RADIO_CHNL6, 32);
-    else if(cmd == "RADIO7")  irsend.sendNEC(RADIO_CHNL7, 32);
-    else if(cmd == "RADIO8")  irsend.sendNEC(RADIO_CHNL8, 32);
+void usePilot(String subTopic, byte* payload) {
+  if(subTopic == SUBTOPIC_AMP)
+    usePilotAmp(payload);
+  else if(subTopic == SUBTOPIC_TV)
+    usePilotTV(payload);
+}
 
+//////////////////    pilot    //////////////////////
+void usePilotAmp(byte* payload) {
+  long signal = strtol((char*)payload, NULL, 16);
+  irsend.sendNEC(signal, 32);
   delay(40);
   irsend.sendNEC(0xFFFFFFFF, 32);
   delay(40);
   irrecv.enableIRIn();
   irrecv.resume();
-  Serial.println(el + "=" + cmd);
+}
+
+//////////////////    pilot    //////////////////////
+void usePilotTV(byte* payload) {
+  long signal = strtol((char*)payload, NULL, 16);
+  irsend.sendRaw(TV_ON, 67, 38);
+  delay(100);
+  irsend.sendNEC(0xFFFFFFFF, 32);
+  delay(40);
+  irrecv.enableIRIn();
+  irrecv.resume();
 }
 
 //////////////////    volume    //////////////////////
