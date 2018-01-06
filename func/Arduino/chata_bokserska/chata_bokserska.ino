@@ -33,7 +33,8 @@ int result;
 /*
  * Ustawienia dla pilota
 Pilot Yamaha ustawiony na CD 
-Wcisnac i trzymac przycisk CD i przez 3 sekundy trzymac razem z POWER AV, potem kod 2078:
+Wcisnac i trzymac przycisk CD i przez 3 sekundy trzymac razem z POWER AV, potem kod 2078
+kod dla TV: 0069
 sciagnac irremote z https://github.com/z3t0/Arduino-IRremote
 */
 
