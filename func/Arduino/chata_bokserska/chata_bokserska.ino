@@ -45,13 +45,16 @@ unsigned int codeValue; // The value of a known code
 boolean codeReceived = false; // A boolean to keep track of if a code was received
 
 const String TOPIC_PILOT = "pilot";
+const String TOPIC_LIS = "lis";
+const String TOPIC_CZUJ = "czuj";
+
 const String SUBTOPIC_AMP = "amp";
 const String SUBTOPIC_TV = "tv";
-const String TOPIC_LIS = "lis";
 const String SUBTOPIC_LCD = "lcd";
 const String SUBTOPIC_SPEAK = "speak";
 const String SUBTOPIC_SUB = "sub";
 const String SUBTOPIC_ETC = "etc";
+const String SUBTOPIC_GET = "get";
 
 const long  AMP_VOLUP =   0x5EA158A7;
 const long  AMP_VOLDN =   0x5EA1D827;
@@ -127,29 +130,26 @@ void callback(char* topic, byte* payload, unsigned int length) {  //wiadomosc z 
   String mainTopic = top.substring(0, top.indexOf("/"));
   String restTopic = top.substring(top.indexOf("/")+1);
   String subTopic = "";
-  if(restTopic.indexOf("/") >= 0)
+  if(restTopic.indexOf("/") > 0)
       subTopic = restTopic.substring(0, restTopic.indexOf("/"));
   else
       subTopic = restTopic;
   
   if (mainTopic == TOPIC_LIS && !top.endsWith("status")){
       useLis(subTopic, msg);
+      
+      //uaktualnij status listwy
       byte* p = (byte*)malloc(length);
       // Copy the payload to the new buffer
       memcpy(p, payload, length);
       client.publish((mainTopic + "/" + subTopic + "/status").c_str(), p, length);
       free(p);
   }
-  else if (mainTopic == TOPIC_PILOT)
+  else if (mainTopic == TOPIC_PILOT){
     usePilot(subTopic, payload);
-  else if (top == "czuj") {
-    String cmd = "";
-    for (int i=0;i<length;i++) {
-      cmd = cmd +((char)payload[i]);
-    }
-    if (cmd == "ON" ) {
+  }
+  else if (mainTopic == TOPIC_CZUJ && subTopic == SUBTOPIC_GET) {
       meteo();
-    }
   }
   else if(top == "pcCMD"){
     pcCMD(topic, payload, length);
@@ -236,35 +236,6 @@ void useLis(String subTopic, String cmd) {
 }
 
 
-//////////////////    listwy    //////////////////////
-void useLis1(char* topic, byte* payload, unsigned int length) {
-  int elemNo = 0;
-  String el = topic;
-  String elem = el.substring(4);
-       if (elem == "lcd") elemNo = lis_lcd;
-  else if (elem == "speak") elemNo = lis_speak;
-  else if (elem == "amp") elemNo = lis_amp;
-  else if (elem == "sub") elemNo = lis_sub;
-  else if (elem == "etc") elemNo = lis_etc;
-  String cmd = "";
-  for (int i=0;i<length;i++) {
-    cmd = cmd +((char)payload[i]);
-  }
-  if (cmd == "ON" ) {
-    digitalWrite(elemNo, HIGH);
-  }
-  else {
-    digitalWrite(elemNo, LOW);
-  }
-  String top = el + "/status";
-  byte* p = (byte*)malloc(length);
-  // Copy the payload to the new buffer
-  memcpy(p, payload, length);
-  client.publish(top.c_str(), p, length);
-  Serial.println("lis_" + elem + "=" + cmd);
-  free(p);
-}
-
 //////////////////    pilot    //////////////////////
 void usePilot(String subTopic, byte* payload) {
   if(subTopic == SUBTOPIC_AMP)
@@ -273,7 +244,7 @@ void usePilot(String subTopic, byte* payload) {
     usePilotTV(payload);
 }
 
-//////////////////    pilot    //////////////////////
+//////////////////    pilotAmp    //////////////////////
 void usePilotAmp(byte* payload) {
   long signal = strtol((char*)payload, NULL, 16);
   irsend.sendNEC(signal, 32);
@@ -284,7 +255,7 @@ void usePilotAmp(byte* payload) {
   irrecv.resume();
 }
 
-//////////////////    pilot    //////////////////////
+//////////////////    pilotTV    //////////////////////
 void usePilotTV(byte* payload) {
   long signal = strtol((char*)payload, NULL, 16);
   irsend.sendRaw(TV_ON, 67, 38);
@@ -483,34 +454,3 @@ void led(int led_clr){
   delay(10);
 }
 
-//**************************************************************************************************************//
-/*
-void buttons(char* topic, byte* payload, unsigned int length) {
-  irrecv.resume();
-  String el = topic;
-  String cmd = "";
-  int button = 0;
-  for (int i=0;i<length;i++) {
-    cmd = cmd +((char)payload[i]);
-  }
-         if(cmd == "UP") button = but_up;
-    else if(cmd == "DN") button = but_dn;
-    else if(cmd == "LE") button = but_le;
-    else if(cmd == "RI") button = but_ri;
-    else if(cmd == "1")  button = but_1;
-    else if(cmd == "2")  button = but_2;
-    else if(cmd == "3")  button = but_3;
-    else if(cmd == "4")  button = but_4;
-    else if(cmd == "R1") button = but_r1;
-    else if(cmd == "R2") button = but_r2;
-    else if(cmd == "L1") button = but_l1;
-    else if(cmd == "L2") button = but_l2;
-    else if(cmd == "PC") button = but_pc;
-    
-    digitalWrite(button, HIGH);
-    delay(100);
-    digitalWrite(button, LOW);
-
-  Serial.println(button + " " + cmd + " pressed");
-}
-*/
